@@ -1,55 +1,67 @@
-def is_already_visited(index, visited):
-    if index in visited:
-        return True
-    visited.add(index)
-    return False
+class Program:
+    def __init__(self, ops):
+        self.ops = ops
+        self.acc, self.cnt = 0, 0
 
-def acc_op(acc, prg_cnt, x):
-    acc += x
-    return acc, prg_cnt+1
+    @staticmethod
+    def _is_already_visited(index, visited):
+        return False
 
-def jmp_op(acc, prg_cnt, x):
-    prg_cnt += x
-    return acc, prg_cnt
+    def reset(self):
+        self.acc, self.cnt = 0, 0
 
-def nop_op(acc, prg_cnt, x):
-    return acc, prg_cnt+1
+    def execute(self):
+        visited = set()
+        while True:
+            if self.cnt in visited:
+                break
+            if self.cnt >= len(self.ops):
+                break
+            visited.add(self.cnt)
+            op, value = self.ops[self.cnt]
+            op(self, value)
+        return self.acc
 
-ops = {
-    'acc': acc_op,
-    'jmp': jmp_op,
-    'nop': nop_op,
-}
 
-def parse_op(s):
-    op_and_value = s.strip().split()
-    return (op_and_value[0], int(op_and_value[1]))
+def acc_op(prg, x):
+    prg.acc += x
+    prg.cnt += 1
 
-program = list(map(parse_op, filter(None, open('day_08/input.txt').read().split('\n'))))
+def jmp_op(prg, x):
+    prg.cnt += x
 
-def execute(prg):
-    acc, prg_cnt = 0, 0
-    visited = set()
-    while not is_already_visited(prg_cnt, visited):
-        if prg_cnt >= len(prg):
-            break
-        op, value = prg[prg_cnt]
-        acc, prg_cnt = ops[op](acc, prg_cnt, value)
-    return acc, prg_cnt
+def nop_op(prg, x):
+    prg.cnt += 1
 
-final_acc, _ = execute(program)
+def compile(filename):
+    ops = {
+        'acc': acc_op,
+        'jmp': jmp_op,
+        'nop': nop_op,
+    }
+
+    def parse_op(s):
+        op_and_value = s.strip().split()
+        return (ops[op_and_value[0]], int(op_and_value[1]))
+
+    return list(map(parse_op, filter(None, open(filename).read().split('\n'))))
+
+
+program = Program(compile('day_08/input.txt'))
+
+final_acc = program.execute()
 print(str(final_acc))
 
 
 def find_bug(prg):
-    for mod in range(0,len(prg)):
-        mod_program = prg.copy()
-        if mod_program[mod][0] == 'acc':
+    for mod in range(0,len(prg.ops)):
+        mod_program = Program(prg.ops.copy())
+        if mod_program.ops[mod][0] == acc_op:
             continue
-        mod_op, mod_value = prg[mod]
-        mod_program[mod] = ('nop', mod_value) if mod_op == 'jmp' else ('jmp', mod_value)
-        acc, prg_cnt = execute(mod_program)
-        if prg_cnt >= len(mod_program):
+        mod_op, mod_value = mod_program.ops[mod]
+        mod_program.ops[mod] = (nop_op, mod_value) if mod_op == jmp_op else (jmp_op, mod_value)
+        acc = mod_program.execute()
+        if mod_program.cnt >= len(mod_program.ops):
             return acc
     return 0
 
