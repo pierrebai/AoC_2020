@@ -1,53 +1,61 @@
-input_data = map(lambda s: (s[0], int(s[1:])), filter(None, open('day_12/input.txt').read().split('\n')))
+input_data = list(map(lambda s: (s[0], int(s[1:])), filter(None, open('day_12/input.txt').read().split('\n'))))
 
-def turn(d, v):
-    if v == 0:
-        return d
-    elif v == 90:
-        return {
-            'N':'E',
-            'E':'S',
-            'S':'W',
-            'W':'N',
-        }[d]
-    elif v == 270:
-        return {
-            'E':'N',
-            'S':'E',
-            'W':'S',
-            'N':'W',
-        }[d]
-    elif v == 180:
-        return {
-            'E':'W',
-            'S':'N',
-            'W':'E',
-            'N':'S',
-        }[d]
-    else:
-        return d
+dirs = { 'E': 0, 'S': 1, 'W': 2, 'N': 3 }
+rots = { 'R': 1, 'L': 3 }
+moves = [(1, 0), (0, -1), (-1, 0), (0, 1)]
+
+class ship:
+    x, y, dir = (0, 0, 0)
+
+def turn(ship, cmd, value):
+    amount = rots[cmd] * value // 90
+    ship.dir = (ship.dir + amount) % 4
+
+def move_in_dir(ship, dir, value):
+    deltas = moves[dir]
+    ship.x += deltas[0] * value
+    ship.y += deltas[1] * value
+
+def move(ship, cmd, value):
+    move_in_dir(ship, dirs[cmd], value)
     
-x, y = 0, 0
-d = 'E'
+def forward(ship, cmd, value):
+    move_in_dir(ship, ship.dir, value)
 
-def move(c, v):
-    global x, y, d
-    if c == 'N':
-        y += v
-    elif c == 'S':
-        y -= v
-    elif c== 'E':
-        x += v
-    elif c == 'W':
-        x -= v
-    elif c == 'F':
-        move(d, v)
-    elif c ==  'R':
-        d = turn(d, v)
-    elif c == 'L':
-        d = turn(d, 360 - v)
+def execute_commands(ship, cmds):
+    cmd_ops = {
+        'E': move,
+        'S': move,
+        'W': move,
+        'N': move,
+        'L': turn,
+        'R': turn,
+        'F': forward,
+    }
+    for c, v in cmds:
+        cmd_ops[c](ship, c, v)
 
-for c, v in input_data:
-    move(c, v)
+s = ship()
+execute_commands(s, input_data)
+print(str(abs(s.x) + abs(s.y)))
 
-print(str(abs(x) + abs(y)))
+class waypoint_ship(ship):
+    wx, wy = (10, 1)
+
+def turn(ship, cmd, value):
+    amount = (rots[cmd] * value // 90) % 4
+    for i in range(0, amount):
+        ship.wx, ship.wy = ship.wy, -ship.wx
+
+def move(ship, cmd, value):
+    deltas = moves[dirs[cmd]]
+    ship.wx += deltas[0] * value
+    ship.wy += deltas[1] * value
+    
+def forward(ship, cmd, value):
+    ship.x += ship.wx * value
+    ship.y += ship.wy * value
+
+s = waypoint_ship()
+execute_commands(s, input_data)
+print(str(abs(s.x) + abs(s.y)))
