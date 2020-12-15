@@ -45,7 +45,7 @@ def evolve_until_stable(seats, max_dist=1, tolerance=4):
         #print_seats(seats)
         if not changed:
             return seats, evolution_generations
-        
+
 final_seats, gens = evolve_until_stable(seats)
 print(gens)
 occupied_count = sum(map(lambda row: sum(map(lambda c: 1 if c == '#' else 0, row)), final_seats))
