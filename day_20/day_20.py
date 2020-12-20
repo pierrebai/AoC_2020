@@ -38,41 +38,6 @@ class Tile:
 
 tiles = list(map(lambda lines: Tile(lines), input_data))
 
-for tile in tiles:
-    borders = tile.borders[:]
-    tile.flip()
-    if tile.flipped_borders[0] != borders[0]:
-        raise Exception('Bad flip.')
-    if tile.flipped_borders[1] != borders[3]:
-        raise Exception('Bad flip.')
-    if tile.flipped_borders[2] != borders[2]:
-        raise Exception('Bad flip.')
-    if tile.flipped_borders[3] != borders[1]:
-        raise Exception('Bad flip.')
-    borders = tile.borders[:]
-    tile.rotate()
-    tile.rotate()
-    tile.rotate()
-    tile.rotate()
-    if tile.borders[0] != borders[0]:
-        raise Exception('Bad rotate.')
-    if tile.borders[1] != borders[1]:
-        raise Exception('Bad rotate.')
-    if tile.borders[2] != borders[2]:
-        raise Exception('Bad rotate.')
-    if tile.borders[3] != borders[3]:
-        raise Exception('Bad rotate.')
-
-def print_tile(tile, file):
-    print('Tile %d:' % tile.id, file=file)
-    for line in tile.image:
-        print(line, file=file)
-    print('', file=file)
-
-#with open('day_20/output.txt', 'w') as file:
-#    for tile in tiles:
-#        print_tile(tile, file)
-
 from collections import defaultdict
 border_id_counts = defaultdict(int)
 
@@ -81,20 +46,6 @@ for tile in tiles:
         border_id_counts[border] += 1
     for border in tile.flipped_borders:
         border_id_counts[border] += 1
-
-#print(border_id_counts)
-
-unique_border_count = len(list(filter(lambda b: b == 1, border_id_counts.values())))
-duo_border_count = len(list(filter(lambda b: b == 2, border_id_counts.values())))
-other_border_count = len(list(filter(lambda b: b >  2, border_id_counts.values())))
-
-print('tiles:       %d' % len(tiles))
-print('uniques:     %d' % unique_border_count)
-print('duos:        %d' % duo_border_count)
-print('others:      %d' % other_border_count)
-print('total:       %d' % (unique_border_count + 2 * duo_border_count))
-print('total sides: %d' % (144 * 4))
-print('borders      %d' % (12 * 4))
 
 def count_unique_borders(borders):
     count = 0
@@ -115,16 +66,8 @@ def find_corners(tiles):
 corners, corners_total = find_corners(tiles)
 print(corners_total)
 
-top_left = corners.pop()
-while border_id_counts[top_left.borders[0]] != 1 or border_id_counts[top_left.borders[3]] != 1:
-    top_left.rotate()
 
-done = set()
-done.add(top_left.id)
-image = [[top_left]]
-image_size = 12
-
-def find_matching_tile(searched, border_index):
+def find_matching_tile(searched, border_index, done):
     for tile in tiles:
         if tile.id in done:
             continue
@@ -139,22 +82,36 @@ def find_matching_tile(searched, border_index):
             return tile
     raise Exception('Image tile not found.')
 
-x = 0
-for y in range(1, image_size):
-    searched = image[x][y-1].flipped_borders[2]
-    tile = find_matching_tile(searched, 0)
-    if border_id_counts[tile.borders[3]] != 1:
-        raise Exception('Not a proper border tile: %d.' % border_id_counts[tile.borders[1]])
-    image[x].append(tile)
-
-for x in range(1, image_size):
-    image.append([])
-    for y in range(0, image_size):
-        searched = image[x-1][y].flipped_borders[1]
-        tile = find_matching_tile(searched, 3)
+def find_first_image_column(image, image_size, done):
+    x = 0
+    for y in range(1, image_size):
+        searched = image[x][y-1].flipped_borders[2]
+        tile = find_matching_tile(searched, 0, done)
+        if border_id_counts[tile.borders[3]] != 1:
+            raise Exception('Not a proper border tile: %d.' % border_id_counts[tile.borders[1]])
         image[x].append(tile)
 
-def make_full_image_tile(image):
+def find_other_image_columns(image, image_size, done):
+    for x in range(1, image_size):
+        image.append([])
+        for y in range(0, image_size):
+            searched = image[x-1][y].flipped_borders[1]
+            tile = find_matching_tile(searched, 3, done)
+            image[x].append(tile)
+
+def make_full_image_tile(top_left):
+    while border_id_counts[top_left.borders[0]] != 1 or border_id_counts[top_left.borders[3]] != 1:
+        top_left.rotate()
+
+    done = set()
+    done.add(top_left.id)
+
+    image = [[top_left]]
+    image_size = 12
+
+    find_first_image_column(image, image_size, done)
+    find_other_image_columns(image, image_size, done)
+
     lines = ['Tile 0:']
     for y in range(0, image_size):
         for sub_y in range(1, len(image[0][0].image) - 1):
@@ -164,39 +121,41 @@ def make_full_image_tile(image):
             lines.append(''.join(line_parts))
     return Tile('\n'.join(lines))
 
-full_image = make_full_image_tile(image)
-print_tile(full_image, open('day_20/full_image.txt', 'w'))
+def count_monster_dots(full_image):
+    monster = [
+        (18, 0),
+        (0, 1), (5, 1), (6, 1), (11, 1), (12, 1), (17, 1), (18, 1), (19, 1), 
+        (1, 2), (4, 2), (7, 2), (10, 2), (13, 2), (16, 2), 
+    ]
+
+    size = len(full_image.image[0])
+    count = 0
+    for flip in range(0, 2):
+        full_image.flip()
+        for rot in range(0, 4):
+            full_image.rotate()
+            for x in range(0, size):
+                for y in range(0, size):
+                    for delta in monster:
+                        mx = x+delta[0]
+                        my = y+delta[1]
+                        if mx >= size or my >= size:
+                            break
+                        if full_image.image[my][mx] != '#':
+                            break
+                    else:
+                        count += 1
+    return count * len(monster)
+
+def count_image_dots(full_image):
+    dot_count = 0
+    size = len(full_image.image[0])
+    for x in range(0, size):
+        for y in range(0, size):
+            if full_image.image[y][x] == '#':
+                dot_count += 1
+    return dot_count
 
 
-monster = [
-    (18, 0),
-    (0, 1), (5, 1), (6, 1), (11, 1), (12, 1), (17, 1), (18, 1), (19, 1), 
-    (1, 2), (4, 2), (7, 2), (10, 2), (13, 2), (16, 2), 
-]
-
-size = len(full_image.image[0])
-count = 0
-for flip in range(0, 2):
-    full_image.flip()
-    for rot in range(0, 4):
-        full_image.rotate()
-        for x in range(0, size):
-            for y in range(0, size):
-                for delta in monster:
-                    mx = x+delta[0]
-                    my = y+delta[1]
-                    if mx >= size or my >= size:
-                        break
-                    if full_image.image[my][mx] != '#':
-                        break
-                else:
-                    count += 1
-
-dot_count = 0
-for x in range(0, size):
-    for y in range(0, size):
-        if full_image.image[y][x] == '#':
-            dot_count += 1
-
-
-print(dot_count - count * len(monster))
+full_image = make_full_image_tile(corners.pop())
+print(count_image_dots(full_image) - count_monster_dots(full_image))
