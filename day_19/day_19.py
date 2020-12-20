@@ -15,19 +15,12 @@ def convert_rule_to_regex(rule_index, rules):
     alt_regex = []
     for alt in rules[rule_index]:
         sub_regex = []
-        is_multi = False
         for sub_rule in alt:
             if type(sub_rule) is str:
-                if sub_rule == '+':
-                    is_multi = True
-                else:
-                    sub_regex.append(sub_rule)
+                sub_regex.append(sub_rule)
             else:
                 sub_regex.append(convert_rule_to_regex(sub_rule, rules))
-        if is_multi:
-            alt_regex.append('((' + ')+('.join(sub_regex) + ')+)')
-        else:
-            alt_regex.append(''.join(sub_regex))
+        alt_regex.append(''.join(sub_regex))
     if len(alt_regex) == 1:
         return alt_regex[0]
     else:
