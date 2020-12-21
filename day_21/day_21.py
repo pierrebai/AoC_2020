@@ -2,8 +2,8 @@ input_data = filter(None, open('day_21/input.txt').read().split('\n'))
 
 def parse_food(line):
     ingredients, allergens = line.split('(contains ')
-    allergens = set(map(lambda a: a.strip(), allergens.strip(')').split(',')))
-    ingredients = set(map(lambda i: i.strip(), ingredients.split()))
+    allergens = frozenset(map(lambda a: a.strip(), allergens.strip(')').split(',')))
+    ingredients = frozenset(map(lambda i: i.strip(), ingredients.split()))
     return (ingredients, allergens)
 
 def find_potential_allergenic_ingredients(foods):
@@ -11,22 +11,22 @@ def find_potential_allergenic_ingredients(foods):
     for ingredients, allergens in foods:
         for a in allergens:
             if a in allergens_to_ingredients:
-                allergens_to_ingredients[a].intersection_update(ingredients)
+                allergens_to_ingredients[a] = allergens_to_ingredients[a].intersection(ingredients)
             else:
-                allergens_to_ingredients[a] = set(ingredients)
+                allergens_to_ingredients[a] = frozenset(ingredients)
     return allergens_to_ingredients
 
 def find_all_ingredients(foods):
-    all_ingredients = set()        
+    all_ingredients = set()
     for ingredients, allergens in foods:
         all_ingredients.update(ingredients)
-    return all_ingredients
+    return frozenset(all_ingredients)
 
 def find_non_allergens(all_ingredients, allergens_to_ingredients):
     non_allergens = set(all_ingredients)
     for allergen, ingredients in allergens_to_ingredients.items():
         non_allergens.difference_update(ingredients)
-    return non_allergens
+    return frozenset(non_allergens)
 
 def count_in_foods(ingredients: set, foods):
     total_count = 0
@@ -48,7 +48,7 @@ def find_allergens(non_allergens, allergens_to_ingredients):
     allergens = []
     while len(todo) > 0:
         for allergen, ingredients in allergens_to_ingredients.items():
-            potentials = ingredients.difference(done)
+            potentials = set(ingredients.difference(done))
             if len(potentials) == 1:
                 ingredient = potentials.pop()
                 allergens.append((allergen, ingredient))
