@@ -38,10 +38,11 @@ def play_game_2(decks: list):
         if all([len(d) >= v for d, v in zip(decks, takens)]):
             copies = [d[:v] for d, v in zip(decks, takens)]
             winner = play_game_2(copies)
+            taken = takens.pop(winner)
+            takens.insert(0, taken)
         else:
             winner = takens.index(max(takens))
-        if winner != 0:
-            takens = [takens[1], takens[0]]
+            takens.sort(reverse=True)
         decks[winner].extend(takens)
     scores = list(map(lambda d: len(d) > 0, decks))
     return scores.index(True)
