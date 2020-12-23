@@ -29,13 +29,3 @@ cups = rotate_list_left(cups, cups.index(1))
 del cups[0]
 print(''.join(map(str, cups)))
 
-
-#cups = [4,9,6,1,3,8,5,2,7]
-#cups.extend([i for i in range(10, 1000000+1)])
-#for i in range(0, 10000000):
-#    if i % 1000 == 0:
-#        print('.')
-#    cups = crab_move(cups)
-
-#one = cups.index(1)
-#print(cups[one+1] * cups[one+2])
