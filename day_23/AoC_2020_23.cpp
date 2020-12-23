@@ -3,6 +3,7 @@
 
 using namespace std;
 
+// Circular list of cups.
 struct cup
 {
     cup(int v) : label(v), next(this) {}
@@ -11,11 +12,17 @@ struct cup
     cup* next = 0;
 };
 
+// Quick finder of the cup with the given label.
+// Since we never delete cups, this lookup table is stable.
 struct cup_finder
 {
     map<int, cup*> cup_by_value;
 };
 
+// Add a cup with the given label after the given cup,
+// maintaining the circular list. Works even if the
+// after-cup is null, to create the first cup.
+// Add it to the cup finder, too.
 cup* add_cup_after(cup* after, cup_finder& f, int label)
 {
     auto new_cup = new cup(label);
@@ -28,6 +35,8 @@ cup* add_cup_after(cup* after, cup_finder& f, int label)
     return new_cup;
 }
 
+// Remove the three cups after the given one and return them.
+// Note: the removed cups form a simple list, not a circular one.
 cup* cut_next_three(cup* current)
 {
     auto first = current->next;
@@ -37,11 +46,14 @@ cup* cut_next_three(cup* current)
     return first;
 }
 
+// Reduce label by ne, with wrap around if zero or less.
 int previous_label(int label, int max_label)
 {
     return label == 1 ? max_label : label - 1;
 }
 
+// Verify if a label is in the linked list of cups.
+// Note: linked list is not circular.
 bool is_label_in(cup* cup, const int label)
 {
     for(; cup; cup = cup->next)
@@ -50,6 +62,8 @@ bool is_label_in(cup* cup, const int label)
     return false;
 }
 
+// Insert the non-circular list of cups after the given cup
+// which is in a circular list. Keep the resulting list circular.
 void insert_after(cup* after, cup* picked)
 {
     auto last = after->next;
@@ -61,6 +75,7 @@ void insert_after(cup* after, cup* picked)
     picked->next = last;
 }
 
+// Execute a single crab game move.
 void crab_move(cup* current, cup_finder& finder, int max_label)
 {
     auto picked_cups = cut_next_three(current);
