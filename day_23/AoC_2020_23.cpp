@@ -46,7 +46,7 @@ cup* cut_next_three(cup* current)
     return first;
 }
 
-// Reduce label by ne, with wrap around if zero or less.
+// Reduce label by one, with wrap around if zero or less.
 int previous_label(int label, int max_label)
 {
     return label == 1 ? max_label : label - 1;
