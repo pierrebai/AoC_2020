@@ -1,3 +1,8 @@
+def input():
+    input_data = list(filter(None, open('day_24/input.txt').read().split('\n')))
+    tile_moves = list(map(parse_moves, input_data))
+    return flip_tiles(tile_moves)
+
 def parse_moves(line: str):
     replacements = [ ('ne', '0 '), ('se', '2 '), ('sw', '3 '), ('nw', '5 '), ('e', '1 '), ('w', '4 '), ]
     for dir, val in replacements:
@@ -24,10 +29,8 @@ def flip_tiles(tile_moves: list):
         apply_moves(grid, moves)
     return grid
 
-input_data = list(filter(None, open('day_24/input.txt').read().split('\n')))
-tile_moves = list(map(parse_moves, input_data))
-grid = flip_tiles(tile_moves)
-print(len(grid))
+def part_1(grid):
+    return len(grid)
 
 def count_around(grid: set, pos: tuple):
     count = 0
@@ -50,7 +53,11 @@ def evolve(grid: set):
                     new_grid.add(new_pos)
     return new_grid
 
-for i in range(0, 100):
-    grid = evolve(grid)
+def part_2(grid):
+    for i in range(0, 100):
+        grid = evolve(grid)
+    return len(grid)
 
-print(len(grid))
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

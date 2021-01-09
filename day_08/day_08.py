@@ -1,3 +1,6 @@
+def input():
+    return Program(compile('day_08/input.txt'))
+
 class Program:
     def __init__(self, ops):
         self.ops = ops
@@ -47,10 +50,8 @@ def compile(filename):
     return list(map(parse_op, filter(None, open(filename).read().split('\n'))))
 
 
-program = Program(compile('day_08/input.txt'))
-
-final_acc = program.execute()
-print(str(final_acc))
+def part_1(program):
+    return program.execute()
 
 
 def find_bug(prg):
@@ -65,5 +66,9 @@ def find_bug(prg):
             return acc
     return 0
 
-final_acc = find_bug(program)
-print(str(final_acc))
+def part_2(program):
+    return find_bug(program)
+
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

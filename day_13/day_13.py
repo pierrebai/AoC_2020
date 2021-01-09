@@ -1,16 +1,29 @@
-input_data = list(filter(None, open('day_13/input.txt').read().split('\n')))
+def input():
+    input_data = list(filter(None, open('day_13/input.txt').read().split('\n')))
+    timestamp = int(input_data[0])
+    buses = list(map(lambda s: 0 if 'x' == s else int(s), input_data[1].split(',')))
+    return (timestamp, buses)
 
-timestamp = int(input_data[0])
-buses = list(map(lambda s: 0 if 'x' == s else int(s), input_data[1].split(',')))
-buses_wait_times = list(map(lambda b: b - timestamp % b if b else 1000000, buses))
-bus_and_times = list(zip(buses_wait_times, buses))
-bus_and_times.sort()
-print(str(bus_and_times[0][0] * bus_and_times[0][1]))
+def part_1(t_and_b):
+    timestamp, buses = t_and_b
+    buses_wait_times = list(map(lambda b: b - timestamp % b if b else 1000000, buses))
+    bus_and_times = list(zip(buses_wait_times, buses))
+    bus_and_times.sort()
+    return bus_and_times[0][0] * bus_and_times[0][1]
 
-bus_arrival_deltas = list(range(0,len(buses)))
-bus_and_deltas = list(filter(lambda bd: bd[0], zip(buses, bus_arrival_deltas)))
-
-print(bus_and_deltas)
+def part_2(t_and_b):
+    timestamp, buses = t_and_b
+    bus_arrival_deltas = list(range(0,len(buses)))
+    bus_and_deltas = list(filter(lambda bd: bd[0], zip(buses, bus_arrival_deltas)))
+    step = 1
+    start = 0
+    base = bus_and_deltas[0][0]
+    for mod, delta in bus_and_deltas[1:]:
+        new_start = first_mod_by_step(base, mod, delta, start, step)
+        if new_start != start:
+            start = new_start
+            step *= mod
+    return start * base
 
 def first_mod_by_step(base, mod, delta, start, step):
     x = start
@@ -20,13 +33,6 @@ def first_mod_by_step(base, mod, delta, start, step):
             return x
     raise "bad"
 
-step = 1
-start = 0
-base = bus_and_deltas[0][0]
-for mod, delta in bus_and_deltas[1:]:
-    new_start = first_mod_by_step(base, mod, delta, start, step)
-    if new_start != start:
-        start = new_start
-        step *= mod
-
-print(start * base)
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

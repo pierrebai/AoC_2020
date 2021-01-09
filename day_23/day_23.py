@@ -1,5 +1,7 @@
 from collections import deque
 
+def input():
+    return [9, 6, 1, 3, 8, 5, 2, 7]
 
 # Circular list of cups.
 class cup:
@@ -61,11 +63,11 @@ def crab_move(current: cup, finder: cup_finder, max_label: int):
     destination_cup = finder[destination_label]
     insert_after(destination_cup, picked_cups)
 
-def part_1():
+def part_1(labels):
     finder = cup_finder()
     current = add_cup_after(None, finder, 4)
     last = current
-    for label in [9, 6, 1, 3, 8, 5, 2, 7]:
+    for label in labels:
         last = add_cup_after(last, finder, label)
 
     max_label = len(finder)
@@ -74,17 +76,18 @@ def part_1():
         crab_move(current, finder, max_label)
         current = current.next
 
+    labels = []
     cup_to_print = finder[1].next
     for i in range(0, max_label-1):
-        print(cup_to_print.label, end='')
+        labels.append(str(cup_to_print.label))
         cup_to_print = cup_to_print.next
-    print('')
+    return ''.join(labels)
 
-def part_2():
+def part_2(labels):
     finder = cup_finder()
     current = add_cup_after(None, finder, 4)
     last = current
-    for label in [9, 6, 1, 3, 8, 5, 2, 7]:
+    for label in labels:
         last = add_cup_after(last, finder, label)
 
     for label in range(10, 1000000 + 1):
@@ -100,8 +103,8 @@ def part_2():
     label_1 = one_cup.next.label
     label_2 = one_cup.next.next.label
 
-    print(label_1 * label_2)
+    return label_1 * label_2
 
-part_1()
-
-part_2()
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

@@ -1,25 +1,25 @@
 import time
 import math
+import importlib
 
 def do(day: int):
-    print(f'day_{day:>02}')
-    exec(f'from day_{day:>02} import day_{day:>02}')
-    print(f'-------------')
+    mod = importlib.import_module(f'day_{day:>02}.day_{day:>02}')
+    input_data = getattr(mod, 'input')()
+    res1 = getattr(mod, 'part_1')(input_data)
+    input_data = getattr(mod, 'input')()
+    res2 = getattr(mod, 'part_2')(input_data)
+    return res1, res2
 
 def timing(days=range(1, 26)):
     "Report on timing of for all days."
-    timings = []
+    print('    Day  Secs.  Answers')
+    print('    ===  =====  =======')    
     for day in days:
         t0 = time.time()
-        do(day)
+        answers = do(day)
         t = time.time() - t0
-        timings.append(t)
-
-    print('    Day  Secs.')
-    print('    ===  =====')    
-    for i, t in enumerate(timings):
-        day = i + 1
-        stars = '*' * int(3 + math.log(t, 10))
-        print(f'{stars:>4} {day:2} {t:6.3f}')
+        if answers != [None, None]:
+            stars = '*' * int(3 + math.log(t, 10))
+            print(f'{stars:>4} {day:2} {t:6.3f}  {answers}')
 
 timing()

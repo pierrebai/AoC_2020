@@ -1,4 +1,5 @@
-seats = list(map(lambda row: [c for c in row], filter(None, open('day_11/input.txt').read().split('\n'))))
+def input():
+    return list(map(lambda row: [c for c in row], filter(None, open('day_11/input.txt').read().split('\n'))))
 
 def count_neighbours(x, y, seats, max_dist):
     count = 0
@@ -46,14 +47,16 @@ def evolve_until_stable(seats, max_dist=1, tolerance=4):
         if not changed:
             return seats, evolution_generations
 
-final_seats, gens = evolve_until_stable(seats)
-print(gens)
-occupied_count = sum(map(lambda row: sum(map(lambda c: 1 if c == '#' else 0, row)), final_seats))
-print(str(occupied_count))
+def part_1(seats):
+    final_seats, gens = evolve_until_stable(seats)
+    return sum(map(lambda row: sum(map(lambda c: 1 if c == '#' else 0, row)), final_seats))
 
-final_seats, gens = evolve_until_stable(seats, 10000, 5)
-print(gens)
-occupied_count = sum(map(lambda row: sum(map(lambda c: 1 if c == '#' else 0, row)), final_seats))
-print(str(occupied_count))
+def part_2(seats):
+    final_seats, gens = evolve_until_stable(seats, 10000, 5)
+    return sum(map(lambda row: sum(map(lambda c: 1 if c == '#' else 0, row)), final_seats))
+
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))
 
     

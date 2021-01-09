@@ -1,4 +1,6 @@
-input_data = filter(None, open('day_21/input.txt').read().split('\n'))
+def input():
+    input_data = filter(None, open('day_21/input.txt').read().split('\n'))
+    return list(map(parse_food, input_data))
 
 def parse_food(line):
     ingredients, allergens = line.split('(contains ')
@@ -34,12 +36,11 @@ def count_in_foods(ingredients: set, foods):
         total_count += len(ingredients.intersection(f[0]))
     return total_count
 
-foods = list(map(parse_food, input_data))
-all_ingredients = find_all_ingredients(foods)
-allergens_to_ingredients = find_potential_allergenic_ingredients(foods)
-non_allergens = find_non_allergens(all_ingredients, allergens_to_ingredients)
-
-print(str(count_in_foods(non_allergens, foods)))
+def part_1(foods):
+    all_ingredients = find_all_ingredients(foods)
+    allergens_to_ingredients = find_potential_allergenic_ingredients(foods)
+    non_allergens = find_non_allergens(all_ingredients, allergens_to_ingredients)
+    return count_in_foods(non_allergens, foods)
 
 
 def find_allergens(non_allergens, allergens_to_ingredients):
@@ -56,7 +57,15 @@ def find_allergens(non_allergens, allergens_to_ingredients):
                 todo.remove(allergen)
     return allergens
 
-allergens = find_allergens(non_allergens, allergens_to_ingredients)
-allergens.sort()
+def part_2(foods):
+    all_ingredients = find_all_ingredients(foods)
+    allergens_to_ingredients = find_potential_allergenic_ingredients(foods)
+    non_allergens = find_non_allergens(all_ingredients, allergens_to_ingredients)
+    allergens = find_allergens(non_allergens, allergens_to_ingredients)
+    allergens.sort()
 
-print(','.join([ai[1] for ai in allergens]))
+    return ','.join([ai[1] for ai in allergens])
+
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

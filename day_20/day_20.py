@@ -1,4 +1,6 @@
-input_data = list(filter(None, open('day_20/input.txt').read().split('\n\n')))
+def input():
+    input_data = list(filter(None, open('day_20/input.txt').read().split('\n\n')))
+    return list(map(lambda lines: Tile(lines), input_data))
 
 class Tile:
     def __init__(self, lines):
@@ -36,38 +38,42 @@ class Tile:
         self.image = [''.join(line) for line in new_image]
         self.build_borders()
 
-tiles = list(map(lambda lines: Tile(lines), input_data))
 
 from collections import defaultdict
-border_id_counts = defaultdict(int)
 
-for tile in tiles:
-    for border in tile.borders:
-        border_id_counts[border] += 1
-    for border in tile.flipped_borders:
-        border_id_counts[border] += 1
+def count_border_ids(tiles):
+    border_id_counts = defaultdict(int)
 
-def count_unique_borders(borders):
+    for tile in tiles:
+        for border in tile.borders:
+            border_id_counts[border] += 1
+        for border in tile.flipped_borders:
+            border_id_counts[border] += 1
+    return border_id_counts
+
+def count_unique_borders(borders, border_id_counts):
     count = 0
     for border in borders:
         if border_id_counts[border] == 1:
             count += 1
     return count
 
-def find_corners(tiles):
+def find_corners(tiles, border_id_counts):
     corners = set()
     corners_total = 1
     for tile in tiles:
-        if count_unique_borders(tile.borders) == 2 or count_unique_borders(tile.flipped_borders) == 2:
+        if count_unique_borders(tile.borders, border_id_counts) == 2 or count_unique_borders(tile.flipped_borders, border_id_counts) == 2:
             corners.add(tile)
             corners_total *= tile.id
     return corners, corners_total
 
-corners, corners_total = find_corners(tiles)
-print(corners_total)
+def part_1(tiles):
+    border_id_counts = count_border_ids(tiles)
+    corners, corners_total = find_corners(tiles, border_id_counts)
+    return corners_total
 
 
-def find_matching_tile(searched, border_index, done):
+def find_matching_tile(tiles, searched, border_index, done):
     for tile in tiles:
         if tile.id in done:
             continue
@@ -82,24 +88,24 @@ def find_matching_tile(searched, border_index, done):
             return tile
     raise Exception('Image tile not found.')
 
-def find_first_image_column(image, image_size, done):
+def find_first_image_column(tiles, image, image_size, done, border_id_counts):
     x = 0
     for y in range(1, image_size):
         searched = image[x][y-1].flipped_borders[2]
-        tile = find_matching_tile(searched, 0, done)
+        tile = find_matching_tile(tiles, searched, 0, done)
         if border_id_counts[tile.borders[3]] != 1:
             raise Exception('Not a proper border tile: %d.' % border_id_counts[tile.borders[1]])
         image[x].append(tile)
 
-def find_other_image_columns(image, image_size, done):
+def find_other_image_columns(tiles, image, image_size, done):
     for x in range(1, image_size):
         image.append([])
         for y in range(0, image_size):
             searched = image[x-1][y].flipped_borders[1]
-            tile = find_matching_tile(searched, 3, done)
+            tile = find_matching_tile(tiles, searched, 3, done)
             image[x].append(tile)
 
-def make_full_image_tile(top_left):
+def make_full_image_tile(tiles, top_left, border_id_counts):
     while border_id_counts[top_left.borders[0]] != 1 or border_id_counts[top_left.borders[3]] != 1:
         top_left.rotate()
 
@@ -109,8 +115,8 @@ def make_full_image_tile(top_left):
     image = [[top_left]]
     image_size = 12
 
-    find_first_image_column(image, image_size, done)
-    find_other_image_columns(image, image_size, done)
+    find_first_image_column(tiles, image, image_size, done, border_id_counts)
+    find_other_image_columns(tiles, image, image_size, done)
 
     lines = ['Tile 0:']
     for y in range(0, image_size):
@@ -157,5 +163,12 @@ def count_image_dots(full_image):
     return dot_count
 
 
-full_image = make_full_image_tile(corners.pop())
-print(count_image_dots(full_image) - count_monster_dots(full_image))
+def part_2(tiles):
+    border_id_counts = count_border_ids(tiles)
+    corners, corners_total = find_corners(tiles, border_id_counts)
+    full_image = make_full_image_tile(tiles, corners.pop(), border_id_counts)
+    return count_image_dots(full_image) - count_monster_dots(full_image)
+
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

@@ -1,4 +1,5 @@
-input_data = list(filter(None, open('day_18/input.txt').read().split('\n')))
+def input():
+    return list(filter(None, open('day_18/input.txt').read().split('\n')))
 
 import re
 number_re = re.compile('''[0-9]+''')
@@ -37,11 +38,14 @@ def parse_until_closed(line: str, index: int, mult_is_low: bool):
         value *= v
     return value, index
 
-values = list(map(lambda l: parse_until_closed(l, 0, False)[0], input_data))
-total = sum(values)
-print(str(total))
+def part_1(input_data):
+    values = list(map(lambda l: parse_until_closed(l, 0, False)[0], input_data))
+    return sum(values)
 
-values = list(map(lambda l: parse_until_closed(l, 0, True)[0], input_data))
-total = sum(values)
-print(str(total))
+def part_2(input_data):
+    values = list(map(lambda l: parse_until_closed(l, 0, True)[0], input_data))
+    return sum(values)
 
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

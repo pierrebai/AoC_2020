@@ -1,3 +1,6 @@
+def input():
+    return read_passports()
+
 def clean_lines(file_name):
     return map(lambda l: l.strip(), open(file_name))
 
@@ -60,11 +63,14 @@ def is_passport_valid(passport):
 def is_passport_really_valid(passport):
     return passport_has_fields(passport, required_fields, True)
 
-passports = read_passports()
-valids = list(map(is_passport_valid, passports))
-count = sum(valids)
-print(str(count))
+def part_1(input_data):
+    valids = list(map(is_passport_valid, input_data))
+    return sum(valids)
 
-valids = list(map(is_passport_really_valid, passports))
-count = sum(valids)
-print(str(count))
+def part_2(input_data):
+    valids = list(map(is_passport_really_valid, input_data))
+    return sum(valids)
+
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

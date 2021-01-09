@@ -1,5 +1,6 @@
-
-input_data = list(filter(None, open('day_22/input.txt').read().split('\n\n')))
+def input():
+    input_data = list(filter(None, open('day_22/input.txt').read().split('\n\n')))
+    return parse_decks(input_data)
 
 def parse_deck(deck: str):
     deck = list(filter(None, deck.split('\n')))[1:]
@@ -19,9 +20,9 @@ def play_game(decks: list):
         decks[winner].extend(takens)
     return [score(d) for d in decks]
 
-decks = parse_decks(input_data)
-scores = play_game(decks)
-print(str(max(scores)))
+def part_1(decks):
+    scores = play_game(decks)
+    return max(scores)
 
 def play_game_2(decks: list):
     seens = [set() for d in decks]
@@ -47,6 +48,10 @@ def play_game_2(decks: list):
     scores = list(map(lambda d: len(d) > 0, decks))
     return scores.index(True)
 
-decks = parse_decks(input_data)
-winner = play_game_2(decks)
-print(str(score(decks[winner])))
+def part_2(decks):
+    winner = play_game_2(decks)
+    return score(decks[winner])
+
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

@@ -1,8 +1,9 @@
 from itertools import product
 
-input_data = list(filter(None, open('day_17/input.txt').read().split('\n')))
+def input():
+    return list(filter(None, open('day_17/input.txt').read().split('\n')))
 
-def prepare_cubes(dims: int):
+def prepare_cubes(input_data, dims: int):
     cubes = {}
     for y, line in enumerate(input_data):
         for x, c in enumerate(line):
@@ -34,11 +35,18 @@ def execute_cycle(cubes, dims: int):
                     new_cubes[dc] = 1
     return new_cubes
 
-def execute_n_cycles(cycles: int, dims: int):
-    cubes = prepare_cubes(dims)
+def execute_n_cycles(input_data, cycles: int, dims: int):
+    cubes = prepare_cubes(input_data, dims)
     for i in range(0, cycles):
         cubes = execute_cycle(cubes, dims)
     return cubes
 
-print(str(len(execute_n_cycles(6, 3))))
-print(str(len(execute_n_cycles(6, 4))))
+def part_1(input_data):
+    return len(execute_n_cycles(input_data, 6, 3))
+
+def part_2(input_data):
+    return len(execute_n_cycles(input_data, 6, 4))
+
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))

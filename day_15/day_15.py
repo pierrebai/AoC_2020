@@ -1,5 +1,6 @@
-input_data = [1,12,0,20,8,16]
-#input_data = [0,3,6]
+def input():
+    return [1,12,0,20,8,16]
+    #return [0,3,6]
 
 def play_until(spoken_when, just_spoken, current_turn, until_turn):
     while current_turn < until_turn:
@@ -20,8 +21,14 @@ def play_until(spoken_when, just_spoken, current_turn, until_turn):
 
     return just_spoken
 
-spoken_when = { k:[v] for v,k in enumerate(input_data) }
-print(str(play_until(spoken_when, input_data[-1], len(input_data), 2020)))
+def part_1(input_data):
+    spoken_when = { k:[v] for v,k in enumerate(input_data) }
+    return play_until(spoken_when, input_data[-1], len(input_data), 2020)
 
-spoken_when = { k:[v] for v,k in enumerate(input_data) }
-print(str(play_until(spoken_when, input_data[-1], len(input_data), 30000000)))
+def part_2(input_data):
+    spoken_when = { k:[v] for v,k in enumerate(input_data) }
+    return play_until(spoken_when, input_data[-1], len(input_data), 30000000)
+
+if __name__ == '__main__':
+    print(part_1(input()))
+    print(part_2(input()))
