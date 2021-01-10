@@ -4,10 +4,10 @@ import importlib
 
 def do(day: int):
     mod = importlib.import_module(f'day_{day:>02}.day_{day:>02}')
-    input_data = getattr(mod, 'input')()
-    res1 = getattr(mod, 'part_1')(input_data)
-    input_data = getattr(mod, 'input')()
-    res2 = getattr(mod, 'part_2')(input_data)
+    input_data = mod.input()
+    res1 = mod.part_1(input_data)
+    input_data = mod.input()
+    res2 = mod.part_2(input_data)
     return res1, res2
 
 def timing(days=range(1, 26)):
